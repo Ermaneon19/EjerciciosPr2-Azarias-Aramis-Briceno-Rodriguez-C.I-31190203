@@ -1,0 +1,243 @@
+1. Descripción General
+
+Este programa implementa un sistema de batalla por turnos inspirado en Pokémon.
+Permite que dos Pokémon se enfrenten utilizando movimientos con distintos tipos, daño, costo de MP, velocidad y precisión.
+
+El sistema incluye:
+
+Tipos elementales (Fuego, Agua, Planta, Normal)
+
+Multiplicadores de efectividad
+
+Sistema de MP (mana)
+
+Precisión de ataques
+
+STAB (Same Type Attack Bonus)
+
+Resolución de turnos por velocidad
+
+Mensajes de efectividad
+
+Reinicio automático de estadísticas antes del combate
+
+2. Constantes de Tipos
+TIPO_FUEGO = "Fuego"
+TIPO_AGUA = "Agua"
+TIPO_PLANTA = "Planta"
+TIPO_NORMAL = "Normal"
+
+
+Estas constantes definen los tipos elementales disponibles en el sistema.
+Se usan para comparar tipos y aplicar multiplicadores.
+
+3. Tabla de Tipos (Sistema Escalable)
+tabla_tipos = {
+    TIPO_FUEGO: {TIPO_PLANTA: 2.0, TIPO_AGUA: 0.5},
+    TIPO_AGUA: {TIPO_FUEGO: 2.0, TIPO_PLANTA: 0.5},
+    TIPO_PLANTA: {TIPO_AGUA: 2.0, TIPO_FUEGO: 0.5}
+}
+
+
+Esta estructura permite definir las ventajas y desventajas entre tipos.
+
+2.0 → Súper efectivo
+
+0.5 → Poco efectivo
+
+1.0 → Neutral (por defecto)
+
+La función:
+
+multiplicador_elemental(tipo_ataque, tipo_defensor)
+
+
+Busca en la tabla el multiplicador correspondiente.
+Si no existe relación especial, devuelve 1.0.
+
+4. Clase Movimiento
+
+Representa un ataque que puede usar un Pokémon.
+
+Atributos:
+
+nombre → Nombre del movimiento
+
+tipo → Tipo elemental
+
+dano_base → Daño base del movimiento
+
+costo_mp → MP que consume
+
+velocidad → Determina orden de ataque
+
+precision → Probabilidad de acierto (0-100)
+
+Método importante:
+precision_efectiva(pokemon_usuario)
+
+
+Reduce la precisión en 20 puntos si el movimiento no coincide con el tipo del Pokémon y no es Normal.
+
+Esto penaliza usar movimientos que no sean del mismo tipo.
+
+5. Clase Pokemon
+
+Representa un Pokémon en combate.
+
+Atributos:
+
+nombre
+
+tipo
+
+hp_max
+
+hp
+
+mp_max
+
+mp
+
+defensa
+
+defensa_esp
+
+movimientos (lista de objetos Movimiento)
+
+Métodos:
+esta_vivo()
+
+Devuelve True si el HP es mayor que 0.
+
+puede_usar_algo()
+
+Verifica si existe al menos un movimiento que pueda pagar con el MP actual.
+
+reset()
+
+Restaura HP y MP a sus valores máximos antes de iniciar una batalla.
+
+elegir_movimiento()
+
+Permite al jugador seleccionar un movimiento válido.
+Valida:
+
+Que la opción exista
+
+Que tenga suficiente MP
+
+6. Sistema de Daño
+
+Función:
+
+calcular_dano(atacante, defensor, movimiento)
+
+Elementos que intervienen:
+
+Multiplicador elemental
+
+STAB (1.5x si el movimiento coincide con el tipo del atacante)
+
+Defensa física o especial según el tipo
+
+Si el movimiento es Normal:
+
+Usa defensa física
+
+Si es elemental:
+
+Usa defensa especial
+
+Fórmula:
+
+dano = (daño_base × multiplicador × stab / defensa) × 10
+
+Siempre devuelve al menos 1 de daño.
+
+7. Ejecución de Ataques
+
+Función:
+
+ejecutar_ataque(atacante, defensor, movimiento)
+
+
+Proceso:
+
+Resta MP al atacante
+
+Calcula precisión efectiva
+
+Genera número aleatorio (1–100)
+
+Si falla → muestra mensaje
+
+Si acierta:
+
+Calcula daño
+
+Aplica daño
+
+Muestra mensaje de efectividad
+
+Actualiza HP del defensor
+
+8. Resolución de Turno
+
+Función:
+
+resolver_turno(poke1, mov1, poke2, mov2)
+
+
+Determina quién ataca primero:
+
+Mayor velocidad → ataca primero
+
+Si empatan → aleatorio
+
+Después:
+
+Ataca el primero
+
+Si el segundo sigue vivo → contraataca
+
+Se verifica si alguno fue debilitado
+
+9. Sistema de Batalla
+
+Función principal:
+
+batalla(p1, p2)
+
+Flujo:
+
+Reinicia ambos Pokémon
+
+Muestra mensaje inicial
+
+Loop de turnos mientras ambos estén vivos
+
+Cada turno:
+
+Ambos eligen movimiento
+
+Se resuelve turno
+
+Se verifica victoria o empate
+
+Termina cuando uno cae
+
+También contempla empate si ambos se quedan sin MP.
+
+10. Selección Inicial
+
+En el bloque:
+
+if __name__ == "__main__":
+
+
+Se permite elegir dos Pokémon desde una lista.
+
+Validación:
+
+No se puede elegir el mismo Pokémon para ambos jugadores.
